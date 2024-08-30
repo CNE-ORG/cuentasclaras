@@ -6,14 +6,16 @@ from matplotlib.gridspec import GridSpec
 import matplotlib.patches as mpatches
 import streamlit as st
 from src.reportes import reporte1, reporte2, todos, varios
-from src.cargar import cargar_datos1, cargar_datos2,cargar_registros
+from src.cargar import cargar_datos1, cargar_datos2, cargar_registros, load_data1 
 from streamlit_option_menu import option_menu
 from typing import List, Tuple
 
 def write():
 
-    df = cargar_datos1()
-    df2 = cargar_datos2()
+    url = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/organizaciones_patrimonio.xlsx'
+    #df = cargar_datos1()
+    df = load_data1(url)
+    #df2 = cargar_datos2()
 
     # Filtros interactivos
     filtro_grupo = st.sidebar.selectbox('Filtrar por Agrupacion Politica', df['nombre_agrupacion_politica'].unique())

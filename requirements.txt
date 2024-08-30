@@ -1,0 +1,8 @@
+pandas
+streamlit
+matplotlib
+typing
+os
+fpdf
+PyPDF2
+subprocess

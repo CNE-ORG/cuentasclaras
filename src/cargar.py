@@ -1,5 +1,7 @@
 import pandas as pd
-import os
+import requests
+from io import BytesIO
+
 
 def cargar_datos1():
     # Función para cargar y filtrar los datos
@@ -17,7 +19,11 @@ def cargar_datos2():
     df2 = pd.read_excel(csv_path2)
     return df2    
     
-def cargar_registros():
-    # Función para cargar y filtrar los datos
-    df3 = ''
-    return df3    
+def load_data1(url):
+    # Descargamos el archivo desde la URL
+    response = requests.get(url)
+    response.raise_for_status()  # Esto lanzará una excepción si la descarga falla
+
+    # Cargamos los datos desde el archivo Excel
+    df = pd.read_excel(BytesIO(response.content), engine='openpyxl')
+    return df

@@ -6,7 +6,7 @@ from matplotlib.gridspec import GridSpec
 import matplotlib.patches as mpatches
 import streamlit as st
 from src.reportes import reporte1, reporte2, todos, varios
-from src.cargar import cargar_datos1, cargar_datos2, cargar_registros, load_data1 
+from src.cargar import cargar_datos1, cargar_datos2, load_data1 
 from streamlit_option_menu import option_menu
 from typing import List, Tuple
 

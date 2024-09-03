@@ -684,18 +684,18 @@ def reporte2c(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc, 
             pdf.savefig(fig)
     plt.close(fig)  # Cerrar la figura para liberar memoria          
 
-def todosc(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos):
+def todosc(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc):
     # Definir ruta para los archivos PDF temporales
     pdf_path1 = "reporte1c.pdf"
     pdf_path2 = "reporte2c.pdf"
-    combined_pdf_path = "reporte_combinadoc.pdf"
+    combined_pdf_path = "reporte_combinado.pdf"
 
     # Generar ambos reportes
     pdfs = []
-    reporte1c(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path1)
+    reporte1c(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc, pdf_path1)
     pdfs.append(pdf_path1)
     
-    reporte2c(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path2)
+    reporte2c(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc, pdf_path2)
     pdfs.append(pdf_path2)
     
     generar_pdf(pdfs)

@@ -1,5 +1,6 @@
 pandas
 streamlit
+openpyxl
 streamlit_option_menu
 matplotlib
 typing

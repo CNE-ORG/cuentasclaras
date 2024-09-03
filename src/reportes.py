@@ -703,7 +703,7 @@ def todosc(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc)
         
 def varios(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdfs):
     
-    combined_pdf_path = "reporte_combinado.pdf"
+    combined_pdf_path = "https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/reporte_combinado.pdf"
     # Si se seleccionó más de un informe, combinarlos
     if len(pdfs) > 1:
 
@@ -725,7 +725,7 @@ def open_pdf(pdf_path):
             st.download_button(
                 label="Descargar PDF combinado",
                 data=file,
-                file_name="reporte_combinado.pdf"
+                file_name="https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/reporte_combinado.pdf"
             )           
             
 

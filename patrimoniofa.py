@@ -147,7 +147,7 @@ def write():
             # Si se selecciona "Todos"
             if "Todos" in inputsc:
                 pdfs = []
-                todosc(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos)
+                todosc(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc)
             else:
                 # Lista para almacenar las rutas de los PDFs generados
                 pdfs = []
@@ -155,12 +155,12 @@ def write():
                 # Generar los informes seleccionados
                 if "INFORME INDIVIDUAL DE INGRESOS Y GASTOS DE LA CAMPAÑA" in inputsc:
                     pdf_path1 = "reporte1c.pdf"
-                    reporte1c(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path1)
+                    reporte1c(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc, pdf_path1)
                     pdfs.append(pdf_path1)
                    
                 if "Otros" in inputsc:
                     pdf_path3 = "reporte2c.pdf"
-                    reporte2c(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path3)
+                    reporte2c(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc, pdf_path3)
                     pdfs.append(pdf_path3)                    
 
         # Si se seleccionó más de un informe, combinarlos

@@ -195,6 +195,7 @@ def write():
             
     elif selected == "Otros Informes":
         
+            filtro_grupo = st.sidebar.selectbox('Filtrar por Agrupacion Politica', df['nombre_agrupacion_politica'].unique())       
             df_filtradoc = df2[df2['nombre'] == filtro_grupo]
             
             # Unir con el archivo de descripciones

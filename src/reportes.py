@@ -715,7 +715,6 @@ def varios(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdfs
         open_pdf(pdfs[0])
                 
 def open_pdf(pdf_path):
-
     if os.environ.get('IS_STREAMLIT_CLOUD') is None:  # Verifica si no estás en la nube
         if os.name == 'nt':  # Para Windows
             os.startfile(pdf_path)
@@ -727,7 +726,8 @@ def open_pdf(pdf_path):
                 label="Descargar PDF combinado",
                 data=file,
                 file_name="reporte_combinado.pdf"
-            )
+            )           
+            
 
 def generar_pdf(pdfs):
     combined_pdf_path = "reporte_combinado.pdf"

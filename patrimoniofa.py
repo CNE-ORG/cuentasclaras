@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import matplotlib.patches as mpatches
 import streamlit as st
-from src.reportes import reporte1, reporte2, reporte3, reporte4, reporte1c, reporte2c, todos, varios, todosc
+from src.reportes import reporte1, reporte2, reporte3, reporte4, reporte1c, reporte2c, todos, varios, todosc, open_pdf
 from src.cargar import load_data1, load_data2, load_data3 
 from streamlit_option_menu import option_menu
 from typing import List, Tuple
@@ -132,8 +132,10 @@ def write():
                     pdfs.append(pdf_path3)                    
 
         # Si se seleccionó más de un informe, combinarlos
-            if len(pdfs) > 1:
-                varios(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdfs)
+                if len(pdfs) > 1:
+                    varios(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdfs)
+                elif len(pdfs) == 1:
+                    open_pdf(pdfs[0])
 
     elif selected == "Candidatos":
             
@@ -153,7 +155,6 @@ def write():
             filtro_candidato = st.sidebar.selectbox('Filtrar por Candidato', df_filtradocor['nombre_completo'].unique())
             df_filtradocan = df_filtradocor[df_filtradocor['nombre_completo'] == filtro_candidato]
             datasetc = df_filtradocan
-            
 
             data_agrupadac = df_filtradocan.groupby(['tipo', 'codigo', 'nombre', 'descripcion']).agg({'valor': 'sum'}).reset_index()
 
@@ -189,8 +190,8 @@ def write():
                     pdfs.append(pdf_path3)                    
 
         # Si se seleccionó más de un informe, combinarlos
-            if len(pdfs) > 1:
-                varios(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdfs)
+            if len(pdfs) >= 1:
+                varios(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc, pdfs)
             
             
     elif selected == "Otros Informes":

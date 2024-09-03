@@ -361,7 +361,345 @@ def todos(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos):
     pdfs.append(pdf_path2)
     
     generar_pdf(pdfs)
-    open_pdf(combined_pdf_path)    
+    open_pdf(combined_pdf_path)
+
+
+def reporte4(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc, pdf_path):
+    
+    # Variables del encabezado
+    organizacion_politica = datasetc['nombre'].unique()[0]
+    nombre_completo = datasetc['nombre_completo'].unique()[0]
+    numero_documento = datasetc['numero_documento'].unique()[0]
+
+    # Configuración de la visualización
+    fig = plt.figure(figsize=(10, 12))
+    gs = GridSpec(5, 1, height_ratios=[0.8, 1, 2, 3, 4])
+
+    # Títulos del reporte
+    fig.suptitle("ORGANIZACIÓN ELECTORAL\nCONSEJO NACIONAL ELECTORAL\nFondo Nacional De Financiación Política\nINFORME INDIVIDUAL DE INGRESOS Y GASTOS DE LA CAMPAÑA", fontsize=14, fontweight='bold', ha='center')
+
+    # Filtro título
+    ax_filtro = fig.add_subplot(gs[0])
+    ax_filtro.axis('off')
+    ax_filtro.text(0.5, 0.7, f"Nombre Agrupación Política: {organizacion_politica}\n", ha='center', fontsize=12)
+ #   ax_filtro.text(0.5, 0.5, f"NIT: {nit}", ha='center', fontsize=12)
+
+    # encabezado con marco y firmas
+    ax3 = fig.add_subplot(gs[1])
+    ax3.axis('off')
+
+    # Crear marco para el encabezado 1
+    rect0 = mpatches.Rectangle((0, 0), 1.1, 0.5, linewidth=1, edgecolor='black', facecolor='none', transform=ax3.transAxes, clip_on=False)
+    ax3.add_patch(rect0)
+
+    # Texto del encabezado 1
+    ax3.text(0.1, 0.35, f"Candidato: {nombre_completo}", ha='center', fontsize=10)
+    ax3.text(0.8, 0.35, f"Cedula de Ciudadania: {numero_documento}", ha='center', fontsize=10)
+
+    # Encabezado con consecutivo, patrimonio, representante legal y deudas
+    ax0 = fig.add_subplot(gs[2])
+    ax0.axis('tight')
+    ax0.axis('off')
+
+    # Datos de encabezado 2
+
+    encabezado_data = [
+        ["1", "Total Ingresos a 31 de diciembre (Según Balance general)", f'{total_ingresosc:,.0f}'],
+        ["2", "Total Gastos  a 31 de diciembre", f'{total_egresosc:,.0f}']
+    ]
+
+    ax0.table(cellText=encabezado_data, colWidths=[0.1, 1, 0.2], cellLoc='center', loc='center')
+
+    # Tabla detallada de ingresos y egresos
+    ax1 = fig.add_subplot(gs[3])
+    ax1.axis('tight')
+    ax1.axis('off')
+
+    # Preparar tabla de ingresos y egresos
+    # Formatear los valores de la columna 'valor' con separadores de miles y 2 decimales
+    ingresos_data = [[row[0], row[1], f'{row[2]:,.2f}'] for row in ingresos_dfc[['codigo', 'descripcion', 'valor']].values]
+    egresos_data = [[row[0], row[1], f'{row[2]:,.2f}'] for row in egresos_dfc[['codigo', 'descripcion', 'valor']].values]
+
+
+    # Crear la tabla completa con los valores formateados
+    table_data = ingresos_data + \
+                [["", "Total Ingresos Anuales", f'{total_ingresosc:,.2f}']] + \
+                egresos_data + \
+                [["", "Total Egresos Anuales", f'{total_egresosc:,.2f}']]
+
+    # Definir la tabla con justificación centrada y tamaño de letra
+    tabla = ax1.table(cellText=table_data, 
+                    colLabels=["CODIGO", "CONCEPTO", "VALOR"], 
+                    cellLoc='center',  # Justificación centrada por defecto
+                    loc='center',
+                    colWidths=[0.1, 1, 0.2],  # Ajustar el ancho de las columnas
+                    fontsize=16)  # Tamaño inicial de la letra
+
+
+    for key, cell in tabla.get_celld().items():
+        if key[1] == 0 or key[1] == 1:  # Columnas 'Código' y 'Nombre'
+            cell.set_text_props(ha='left')  # Alinear a la izquierda
+        if key[1] == 2 :  # Columna valor
+            cell.set_text_props(ha='right')  # Alinear a la izquierda        
+        cell.set_fontsize(31)  # Aumentar el tamaño de la letra en todas las celdas
+
+
+    # Pie de página con marco y firmas
+    ax2 = fig.add_subplot(gs[4])
+    ax2.axis('off')
+
+    # Crear marco para el pie de página
+    rect = mpatches.Rectangle((0, 0), 1, 0.5, linewidth=1, edgecolor='black', facecolor='none', transform=ax2.transAxes, clip_on=False)
+    ax2.add_patch(rect)
+
+    # Texto del pie de página
+    ax2.text(0.5, 0.35, "Las cifras registradas en este formulario fueron tomadas fielmente del libro de Ingresos y Gastos.", ha='center', fontsize=10)
+    ax2.text(0.2, 0.1, "Firma del Candidato", ha='center', fontsize=10)
+    ax2.text(0.8, 0.1, "Firma del Auditor", ha='center', fontsize=10)
+
+    # Ajustar el layout
+    st.pyplot(fig) 
+
+    # Guardar la figura en un PDF temporal
+    with PdfPages(pdf_path) as pdf:
+            pdf.savefig(fig)
+    plt.close(fig)  # Cerrar la figura para liberar memoria    
+
+def reporte1c(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc, pdf_path):
+    
+    # Variables del encabezado
+    organizacion_politica = datasetc['nombre'].unique()[0]
+    nombre_completo = datasetc['nombre_completo'].unique()[0]
+    numero_documento = datasetc['numero_documento'].unique()[0]
+
+    # Configuración de la visualización
+    fig = plt.figure(figsize=(10, 12))
+    gs = GridSpec(5, 1, height_ratios=[0.8, 1, 2, 3, 4])
+
+    # Títulos del reporte
+    fig.suptitle("ORGANIZACIÓN ELECTORAL\nCONSEJO NACIONAL ELECTORAL\nFondo Nacional De Financiación Política\nINFORME INDIVIDUAL DE INGRESOS Y GASTOS DE LA CAMPAÑA", fontsize=14, fontweight='bold', ha='center')
+
+    # Filtro título
+    ax_filtro = fig.add_subplot(gs[0])
+    ax_filtro.axis('off')
+    ax_filtro.text(0.5, 0.7, f"Nombre Agrupación Política: {organizacion_politica}\n", ha='center', fontsize=12)
+ #   ax_filtro.text(0.5, 0.5, f"NIT: {nit}", ha='center', fontsize=12)
+
+    # encabezado con marco y firmas
+    ax3 = fig.add_subplot(gs[1])
+    ax3.axis('off')
+
+    # Crear marco para el encabezado 1
+    rect0 = mpatches.Rectangle((0, 0), 1.1, 0.5, linewidth=1, edgecolor='black', facecolor='none', transform=ax3.transAxes, clip_on=False)
+    ax3.add_patch(rect0)
+
+    # Texto del encabezado 1
+    ax3.text(0.1, 0.35, f"Candidato: {nombre_completo}", ha='center', fontsize=10)
+    ax3.text(0.8, 0.35, f"Cedula de Ciudadania: {numero_documento}", ha='center', fontsize=10)
+
+    # Encabezado con consecutivo, patrimonio, representante legal y deudas
+    ax0 = fig.add_subplot(gs[2])
+    ax0.axis('tight')
+    ax0.axis('off')
+
+    # Datos de encabezado 2
+
+    encabezado_data = [
+        ["1", "Total Ingresos a 31 de diciembre (Según Balance general)", f'{total_ingresosc:,.0f}'],
+        ["2", "Total Gastos  a 31 de diciembre", f'{total_egresosc:,.0f}']
+    ]
+
+    ax0.table(cellText=encabezado_data, colWidths=[0.1, 1, 0.2], cellLoc='center', loc='center')
+
+    # Tabla detallada de ingresos y egresos
+    ax1 = fig.add_subplot(gs[3])
+    ax1.axis('tight')
+    ax1.axis('off')
+
+    # Preparar tabla de ingresos y egresos
+    # Formatear los valores de la columna 'valor' con separadores de miles y 2 decimales
+    ingresos_data = [[row[0], row[1], f'{row[2]:,.2f}'] for row in ingresos_dfc[['codigo', 'descripcion', 'valor']].values]
+    egresos_data = [[row[0], row[1], f'{row[2]:,.2f}'] for row in egresos_dfc[['codigo', 'descripcion', 'valor']].values]
+
+
+    # Crear la tabla completa con los valores formateados
+    table_data = ingresos_data + \
+                [["", "Total Ingresos Anuales", f'{total_ingresosc:,.2f}']] + \
+                egresos_data + \
+                [["", "Total Egresos Anuales", f'{total_egresosc:,.2f}']]
+
+    # Definir la tabla con justificación centrada y tamaño de letra
+    tabla = ax1.table(cellText=table_data, 
+                    colLabels=["CODIGO", "CONCEPTO", "VALOR"], 
+                    cellLoc='center',  # Justificación centrada por defecto
+                    loc='center',
+                    colWidths=[0.1, 1, 0.2],  # Ajustar el ancho de las columnas
+                    fontsize=16)  # Tamaño inicial de la letra
+
+
+    for key, cell in tabla.get_celld().items():
+        if key[1] == 0 or key[1] == 1:  # Columnas 'Código' y 'Nombre'
+            cell.set_text_props(ha='left')  # Alinear a la izquierda
+        if key[1] == 2 :  # Columna valor
+            cell.set_text_props(ha='right')  # Alinear a la izquierda        
+        cell.set_fontsize(31)  # Aumentar el tamaño de la letra en todas las celdas
+
+
+    # Pie de página con marco y firmas
+    ax2 = fig.add_subplot(gs[4])
+    ax2.axis('off')
+
+    # Crear marco para el pie de página
+    rect = mpatches.Rectangle((0, 0), 1, 0.5, linewidth=1, edgecolor='black', facecolor='none', transform=ax2.transAxes, clip_on=False)
+    ax2.add_patch(rect)
+
+    # Texto del pie de página
+    ax2.text(0.5, 0.35, "Las cifras registradas en este formulario fueron tomadas fielmente del libro de Ingresos y Gastos.", ha='center', fontsize=10)
+    ax2.text(0.2, 0.1, "Firma del Candidato", ha='center', fontsize=10)
+    ax2.text(0.8, 0.1, "Firma del Auditor", ha='center', fontsize=10)
+
+    # Ajustar el layout
+    st.pyplot(fig) 
+
+    # Guardar la figura en un PDF temporal
+    with PdfPages(pdf_path) as pdf:
+            pdf.savefig(fig)
+    plt.close(fig)  # Cerrar la figura para liberar memoria          
+
+def todosc(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos):
+    # Definir ruta para los archivos PDF temporales
+    pdf_path1 = "reporte1c.pdf"
+    pdf_path2 = "reporte2c.pdf"
+    combined_pdf_path = "reporte_combinadoc.pdf"
+
+    # Generar ambos reportes
+    pdfs = []
+    reporte1c(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path1)
+    pdfs.append(pdf_path1)
+    
+    reporte2c(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path2)
+    pdfs.append(pdf_path2)
+    
+    generar_pdf(pdfs)
+    open_pdf(combined_pdf_path)
+
+def reporte2c(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc, pdf_path):
+    
+    # Variables del encabezado
+    organizacion_politica = datasetc['nombre'].unique()[0]
+    nombre_completo = datasetc['nombre_completo'].unique()[0]
+    numero_documento = datasetc['numero_documento'].unique()[0]
+
+    # Configuración de la visualización
+    fig = plt.figure(figsize=(10, 12))
+    gs = GridSpec(5, 1, height_ratios=[0.8, 1, 2, 3, 4])
+
+    # Títulos del reporte
+    fig.suptitle("ORGANIZACIÓN ELECTORAL\nCONSEJO NACIONAL ELECTORAL\nFondo Nacional De Financiación Política\nINFORME INDIVIDUAL DE INGRESOS Y GASTOS DE LA CAMPAÑA", fontsize=14, fontweight='bold', ha='center')
+
+    # Filtro título
+    ax_filtro = fig.add_subplot(gs[0])
+    ax_filtro.axis('off')
+    ax_filtro.text(0.5, 0.7, f"Nombre Agrupación Política: {organizacion_politica}\n", ha='center', fontsize=12)
+ #   ax_filtro.text(0.5, 0.5, f"NIT: {nit}", ha='center', fontsize=12)
+
+    # encabezado con marco y firmas
+    ax3 = fig.add_subplot(gs[1])
+    ax3.axis('off')
+
+    # Crear marco para el encabezado 1
+    rect0 = mpatches.Rectangle((0, 0), 1.1, 0.5, linewidth=1, edgecolor='black', facecolor='none', transform=ax3.transAxes, clip_on=False)
+    ax3.add_patch(rect0)
+
+    # Texto del encabezado 1
+    ax3.text(0.1, 0.35, f"Candidato: {nombre_completo}", ha='center', fontsize=10)
+    ax3.text(0.8, 0.35, f"Cedula de Ciudadania: {numero_documento}", ha='center', fontsize=10)
+
+    # Encabezado con consecutivo, patrimonio, representante legal y deudas
+    ax0 = fig.add_subplot(gs[2])
+    ax0.axis('tight')
+    ax0.axis('off')
+
+    # Datos de encabezado 2
+
+    encabezado_data = [
+        ["1", "Total Ingresos a 31 de diciembre (Según Balance general)", f'{total_ingresosc:,.0f}'],
+        ["2", "Total Gastos  a 31 de diciembre", f'{total_egresosc:,.0f}']
+    ]
+
+    ax0.table(cellText=encabezado_data, colWidths=[0.1, 1, 0.2], cellLoc='center', loc='center')
+
+    # Tabla detallada de ingresos y egresos
+    ax1 = fig.add_subplot(gs[3])
+    ax1.axis('tight')
+    ax1.axis('off')
+
+    # Preparar tabla de ingresos y egresos
+    # Formatear los valores de la columna 'valor' con separadores de miles y 2 decimales
+    ingresos_data = [[row[0], row[1], f'{row[2]:,.2f}'] for row in ingresos_dfc[['codigo', 'descripcion', 'valor']].values]
+    egresos_data = [[row[0], row[1], f'{row[2]:,.2f}'] for row in egresos_dfc[['codigo', 'descripcion', 'valor']].values]
+
+
+    # Crear la tabla completa con los valores formateados
+    table_data = ingresos_data + \
+                [["", "Total Ingresos Anuales", f'{total_ingresosc:,.2f}']] + \
+                egresos_data + \
+                [["", "Total Egresos Anuales", f'{total_egresosc:,.2f}']]
+
+    # Definir la tabla con justificación centrada y tamaño de letra
+    tabla = ax1.table(cellText=table_data, 
+                    colLabels=["CODIGO", "CONCEPTO", "VALOR"], 
+                    cellLoc='center',  # Justificación centrada por defecto
+                    loc='center',
+                    colWidths=[0.1, 1, 0.2],  # Ajustar el ancho de las columnas
+                    fontsize=16)  # Tamaño inicial de la letra
+
+
+    for key, cell in tabla.get_celld().items():
+        if key[1] == 0 or key[1] == 1:  # Columnas 'Código' y 'Nombre'
+            cell.set_text_props(ha='left')  # Alinear a la izquierda
+        if key[1] == 2 :  # Columna valor
+            cell.set_text_props(ha='right')  # Alinear a la izquierda        
+        cell.set_fontsize(31)  # Aumentar el tamaño de la letra en todas las celdas
+
+
+    # Pie de página con marco y firmas
+    ax2 = fig.add_subplot(gs[4])
+    ax2.axis('off')
+
+    # Crear marco para el pie de página
+    rect = mpatches.Rectangle((0, 0), 1, 0.5, linewidth=1, edgecolor='black', facecolor='none', transform=ax2.transAxes, clip_on=False)
+    ax2.add_patch(rect)
+
+    # Texto del pie de página
+    ax2.text(0.5, 0.35, "Las cifras registradas en este formulario fueron tomadas fielmente del libro de Ingresos y Gastos.", ha='center', fontsize=10)
+    ax2.text(0.2, 0.1, "Firma del Candidato", ha='center', fontsize=10)
+    ax2.text(0.8, 0.1, "Firma del Auditor", ha='center', fontsize=10)
+
+    # Ajustar el layout
+    st.pyplot(fig) 
+
+    # Guardar la figura en un PDF temporal
+    with PdfPages(pdf_path) as pdf:
+            pdf.savefig(fig)
+    plt.close(fig)  # Cerrar la figura para liberar memoria          
+
+def todosc(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos):
+    # Definir ruta para los archivos PDF temporales
+    pdf_path1 = "reporte1c.pdf"
+    pdf_path2 = "reporte2c.pdf"
+    combined_pdf_path = "reporte_combinadoc.pdf"
+
+    # Generar ambos reportes
+    pdfs = []
+    reporte1c(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path1)
+    pdfs.append(pdf_path1)
+    
+    reporte2c(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path2)
+    pdfs.append(pdf_path2)
+    
+    generar_pdf(pdfs)
+    open_pdf(combined_pdf_path)
         
 def varios(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdfs):
     

@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 import requests
 from io import BytesIO
 
@@ -26,4 +27,25 @@ def load_data1(url):
 
     # Cargamos los datos desde el archivo Excel
     df = pd.read_excel(BytesIO(response.content), engine='openpyxl')
+    
     return df
+    
+def load_data2(url2):
+    # Descargamos el archivo desde la URL
+    response = requests.get(url2)
+    response.raise_for_status()  # Esto lanzará una excepción si la descarga falla
+
+    # Cargamos los datos desde el archivo Excel
+    df2 = pd.read_excel(BytesIO(response.content), engine='openpyxl')
+    
+    return df2
+
+def load_data3(url3):
+    # Descargamos el archivo desde la URL
+    response = requests.get(url3)
+    response.raise_for_status()  # Esto lanzará una excepción si la descarga falla
+
+    # Cargamos los datos desde el archivo Excel
+    df3 = pd.read_excel(BytesIO(response.content), engine='openpyxl')
+    
+    return df3      

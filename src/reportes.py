@@ -255,7 +255,7 @@ def reporte3(dataset,ingresos_df,egresos_df,total_ingresos,total_egresos, pdf_pa
     gs = GridSpec(5, 1, height_ratios=[0.8, 1, 2, 3, 4])
 
     # Títulos del reporte
-    fig.suptitle("ORGANIZACIÓN ELECTORAL\nCONSEJO NACIONAL ELECTORAL\nFondo Nacional De Financiación Política\nDECLARACION DE PATRIMONIO, INGRESOS Y GASTOS ANUALES", fontsize=14, fontweight='bold', ha='center')
+    fig.suptitle("ORGANIZACIÓN ELECTORAL\nCONSEJO NACIONAL ELECTORAL\nFondo Nacional De Financiación Política\nGASTOS DESTINADOS PARA ACTIVIDADES CONTEMPLADAS EN EL ARTICULO 18 DE LA LEY 1475 DE 2011", fontsize=14, fontweight='bold', ha='center')
 
     # Filtro título
     ax_filtro = fig.add_subplot(gs[0])
@@ -703,22 +703,30 @@ def todosc(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc)
         
 def varios(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdfs):
     
-    combined_pdf_path = "https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/reporte_combinado.pdf"
+    combined_pdf_path = "reporte_combinado.pdf"
     # Si se seleccionó más de un informe, combinarlos
+    
+    for pdf in pdfs:
+        if pdf == "reporte1.pdf":
+            reporte1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf)
+        elif pdf == "reporte2.pdf":
+            reporte2(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf)
+        elif pdf == "reporte3.pdf":
+            reporte3(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf)
+        elif pdf == "reporte1c.pdf":
+            reporte1c(dataset,ingresos_df,egresos_df,total_ingresos,total_egresos, pdf)
+    
     if len(pdfs) > 1:
-
-        generar_pdf(pdfs)
-        open_pdf(combined_pdf_path)
-
+       generar_pdf(pdfs)
+       open_pdf(combined_pdf_path)
     elif len(pdfs) == 1:
-        # Si solo se seleccionó un informe, simplemente abrirlo
         open_pdf(pdfs[0])
                 
 def open_pdf(pdf_path):
         if os.path.exists(pdf_path):
             with open(pdf_path, "rb") as file:
                 st.download_button(
-                    label="Descargar PDF combinado",
+                    label="Descargar PDF .....",
                     data=file,
                     file_name="https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/reporte_combinado.pdf"
                 )           

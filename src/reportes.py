@@ -721,13 +721,15 @@ def open_pdf(pdf_path):
         elif os.name == 'posix':  # Para macOS/Linux
             subprocess.call(['open', pdf_path])
     else:
-        with open(pdf_path, "rb") as file:
-            st.download_button(
-                label="Descargar PDF combinado",
-                data=file,
-                file_name="https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/reporte_combinado.pdf"
-            )           
-            
+        if os.path.exists(pdf_path):
+            with open(pdf_path, "rb") as file:
+                st.download_button(
+                    label="Descargar PDF combinado",
+                    data=file,
+                    file_name="https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/reporte_combinado.pdf"
+                )           
+        else:
+            st.error("El archivo PDF no fue encontrado.")    
 
 def generar_pdf(pdfs):
     combined_pdf_path = "reporte_combinado.pdf"

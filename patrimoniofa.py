@@ -37,25 +37,6 @@ def write():
     url3 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/descripciones.xlsx'
 
     df, df2, df3 = load_and_cache_data(url, url2, url3)
-
-    # Filtros interactivos
-    filtro_grupo = st.sidebar.selectbox('Filtrar por Agrupacion Politica', df['nombre_agrupacion_politica'].unique())
-    df_filtrado = df[df['nombre_agrupacion_politica'] == filtro_grupo] if filtro_grupo != 'Todos' else df
-    
-    # Unir con el archivo de descripciones
-    df_filtrado = df_filtrado.merge(df3, on='codigo', how='left')
-    dataset = df_filtrado
-
-    # Agrupar los datos por tipo
-    data_agrupada = df_filtrado.groupby(['tipo', 'codigo', 'nombre', 'descripcion']).agg({'valor': 'sum'}).reset_index()
-
-    # Filtrar ingresos y egresos
-    ingresos_df = data_agrupada[data_agrupada['tipo'] == 1]
-    egresos_df = data_agrupada[data_agrupada['tipo'] == 2]
-
-    # Calcular totales
-    total_ingresos = ingresos_df['valor'].sum()
-    total_egresos = egresos_df['valor'].sum()
     
     # menu lateral
     with st.sidebar:
@@ -66,7 +47,23 @@ def write():
                                    default_index=0)
 
     if selected == "Home":
+            
+            dataset = df
+            
+            # Unir con el archivo de descripciones
+            df_filtrado = df.merge(df3, on='codigo', how='left')
+                        
+            # Agrupar los datos por tipo
+            data_agrupada = df_filtrado.groupby(['tipo', 'codigo', 'nombre', 'descripcion']).agg({'valor': 'sum'}).reset_index()
+            
+            # Filtrar ingresos y egresos
+            ingresos_df = data_agrupada[data_agrupada['tipo'] == 1]
+            egresos_df = data_agrupada[data_agrupada['tipo'] == 2]
 
+            # Calcular totales
+            total_ingresos = ingresos_df['valor'].sum()
+            total_egresos = egresos_df['valor'].sum()
+            
             # Mostrar resumen de los datos
             st.subheader('Resumen de Datos Filtrados')
             st.write('Organizacion Politica:', dataset['nombre_agrupacion_politica'].unique()[0])
@@ -85,6 +82,25 @@ def write():
             st.write(df_filtrado.head(10))
 
     elif selected == "Organizacion":
+
+            # Filtros interactivos
+            filtro_grupo = st.sidebar.selectbox('Filtrar por Agrupacion Politica', df['nombre_agrupacion_politica'].unique())
+            df_filtrado = df[df['nombre_agrupacion_politica'] == filtro_grupo] if filtro_grupo != 'Todos' else df
+            
+            # Unir con el archivo de descripciones
+            df_filtrado = df_filtrado.merge(df3, on='codigo', how='left')
+            dataset = df_filtrado
+
+            # Agrupar los datos por tipo
+            data_agrupada = df_filtrado.groupby(['tipo', 'codigo', 'nombre', 'descripcion']).agg({'valor': 'sum'}).reset_index()
+
+            # Filtrar ingresos y egresos
+            ingresos_df = data_agrupada[data_agrupada['tipo'] == 1]
+            egresos_df = data_agrupada[data_agrupada['tipo'] == 2]
+
+            # Calcular totales
+            total_ingresos = ingresos_df['valor'].sum()
+            total_egresos = egresos_df['valor'].sum()
 
             st.write("## Informes de Organización")
             inputss = st.multiselect("Cuales Informes desea descargar?", ["Todos", "DECLARACION DE PATRIMONIO, INGRESOS Y GASTOS ANUALES", "INFORME DE INGRESOS Y GASTOS ESTATUTO DE LA OPOSICIÓN", "GASTOS DESTINADOS PARA ACTIVIDADES CONTEMPLADAS EN EL ARTICULO 18 DE LA LEY 1475 DE 2011"])
@@ -121,16 +137,25 @@ def write():
 
     elif selected == "Candidatos":
             
+            
+            # Filtros interactivos
+            filtro_grupo = st.sidebar.selectbox('Filtrar por Agrupacion Politica', df['nombre_agrupacion_politica'].unique())
+            
+            # filtrar el candidato
             df_filtradoc = df2[df2['nombre'] == filtro_grupo]
             
             # Unir con el archivo de descripciones
             df_filtradoc = df_filtradoc.merge(df3, on='codigo', how='left')
             
-            datasetc = df_filtradoc
-            filtro_candidato = st.sidebar.selectbox('Filtrar por Candidato', df_filtradoc['nombre_completo'].unique())
-            df_filtradoc = df_filtradoc[df_filtradoc['nombre_completo'] == filtro_candidato]
+            filtro_corporacion = st.sidebar.selectbox('Filtrar por Corporación', df_filtradoc['nombre_corporacion'].unique())
+            df_filtradocor = df_filtradoc[df_filtradoc['nombre_corporacion'] == filtro_corporacion]
+            
+            filtro_candidato = st.sidebar.selectbox('Filtrar por Candidato', df_filtradocor['nombre_completo'].unique())
+            df_filtradocan = df_filtradocor[df_filtradocor['nombre_completo'] == filtro_candidato]
+            datasetc = df_filtradocan
+            
 
-            data_agrupadac = df_filtradoc.groupby(['tipo', 'codigo', 'nombre', 'descripcion']).agg({'valor': 'sum'}).reset_index()
+            data_agrupadac = df_filtradocan.groupby(['tipo', 'codigo', 'nombre', 'descripcion']).agg({'valor': 'sum'}).reset_index()
 
             # Filtrar ingresos y egresos
             ingresos_dfc = data_agrupadac[data_agrupadac['tipo'] == 1]

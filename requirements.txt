@@ -6,3 +6,12 @@ matplotlib
 typing
 fpdf
 PyPDF2
+reportlab.lib
+reportlab.platypus
+reportlab.lib.pagesize
+reportlab.lib.styles
+reportlab.lib.units
+reportlab.lib.enums
+reportlab.lib.styles
+reportlab.graphics
+reportlab.graphics.shapes

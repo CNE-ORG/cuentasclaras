@@ -6,6 +6,7 @@ matplotlib
 typing
 fpdf
 PyPDF2
+reportlab
 reportlab.lib
 reportlab.platypus
 reportlab.lib.pagesize

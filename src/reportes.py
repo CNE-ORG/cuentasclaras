@@ -323,8 +323,8 @@ def reporte1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pd
     egresos_data = [[row[0], Paragraph(row[1], text_style), f'{row[2]:,.2f}'] for row in egresos_df[['codigo', 'nombre', 'valor']].values]
     
     # Añadir totales
-    ingresos_data.append([Paragraph("100", total_style), Paragraph("Total Ingresos Anuales", total_style), f'{total_ingresos:,.2f}'])
-    egresos_data.append(["200", Paragraph("Total Egresos Anuales", total_style), f'{total_egresos:,.2f}'])
+    ingresos_data.append([Paragraph("100", total_style), Paragraph("Total Ingresos Anuales", total_style), Paragraph(f'{total_ingresos:,.2f}', text_style)])
+    egresos_data.append([Paragraph("200", total_style), Paragraph("Total Egresos Anuales", total_style), f'{total_egresos:,.2f}'])
     
     # Crear tabla de ingresos y egresos
     tabla_ingresos_egresos = Table(encabezado_tabla + ingresos_data + egresos_data, colWidths=[0.5*inch, 6*inch, 1*inch])
@@ -443,13 +443,89 @@ def reporte2(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pd
     elements.append(pie_de_pagina3)
     
     # Generar PDF
-    doc.build(elements)    
+    doc.build(elements)  
+
+def reporte3(datasetg, ingresos_dfg, egresos_dfg, total_ingresosg, total_egresosg, pdf_path, logo_path, informe, title_size=12):
+
+    nit = datasetg['nit'].unique()[0]
+    representante_legal = datasetg['representante_legal'].unique()[0]
+    organizacion_politica = datasetg['nombre_agrupacion_politica'].unique()[0]
+    documento_representante = datasetg['documento_representante'].unique()[0]
+        
+    # Crear PDF
+    doc = SimpleDocTemplate(pdf_path, pagesize=letter, rightMargin=28, leftMargin=28, topMargin=28, bottomMargin=28)
+    elements = []
     
-def todos(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, logo):
+     # Inicializar los estilos al principio de la función
+    styles = getSampleStyleSheet()
+    
+    # Llamar a la función para crear el encabezado
+    encabezado = crear_encabezado(logo_path, informe, title_size)
+    elements.append(encabezado)
+    
+    # Espacio antes de las tablas
+    elements.append(Spacer(1, 6))  # Reducido para ahorrar espacio
+    
+    # Encabezado de la organización política
+    encabezado_info = f"""
+    <b>Nombre Agrupación Política:</b> {organizacion_politica}<br/>
+    <b>NIT:</b> {nit}<br/>
+    <b>Representante Legal:</b> {representante_legal} ({documento_representante})<br/>
+    """
+    elements.append(Paragraph(encabezado_info, styles["Normal"]))
+    
+    # Espacio antes de las tablas detalladas
+    elements.append(Spacer(1, 32))
+    
+    # Obtener estilos
+    styles = getSampleStyleSheet()
+
+    # Crear un estilo con ajuste de texto
+    text_style = ParagraphStyle(name='TextStyle', fontName='Helvetica', fontSize=7, alignment=0, wordWrap='CJK')
+    
+    # Definir un nuevo estilo para los totales
+    total_style = ParagraphStyle(name='TotalStyle', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=12, spaceAfter=6, alignment=0)
+
+    # Filtro codigo
+    # Filtrar ingresos y egresos
+    ingresos = ingresos_dfg[ingresos_dfg['tipo'] == 1]
+    egresos = egresos_dfg[egresos_dfg['tipo'] == 2] 
+
+    # Tablas detalladas de ingresos y egresos
+    ingresos_data = [[row[0], Paragraph(row[1], text_style), f'{row[2]:,.2f}'] for row in ingresos[['codigo', 'descripcion', 'valor']].values]
+    egresos_data = [[row[0], Paragraph(row[1], text_style), f'{row[2]:,.2f}'] for row in egresos[['codigo', 'descripcion', 'valor']].values]
+    
+    # Títulos de las tablas
+    encabezado_tabla = [['CODIGO', 'CONCEPTO', 'VALOR']]
+    
+    # Crear tabla de ingresos y egresos
+    tabla_ingresos_egresos = Table(encabezado_tabla + ingresos_data + egresos_data, colWidths=[0.5*inch, 6*inch, 1*inch])
+    tabla_ingresos_egresos.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 7),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+    ]))
+    elements.append(tabla_ingresos_egresos)
+    
+    # Espacio antes del pie de página
+    elements.append(Spacer(1, 24))  # Reducido para ahorrar espacio
+
+    # Llamar a la función para crear el segundo pie de página
+    pie_de_pagina3 = crear_pie_de_pagina3()
+    elements.append(pie_de_pagina3)
+    
+    # Generar PDF
+    doc.build(elements)       
+    
+def todos(dataset, datasetg, ingresos_df, ingresos_dfg, egresos_df, egresos_dfg, total_ingresos, total_ingresosg, total_egresos, total_egresosg, logo):
     # Definir ruta para los archivos PDF temporales
-    pdf_path1 = "reporte5.pdf"
-    pdf_path2 = "reporte6.pdf"
-    pdf_path3 = "reportemejorado.pdf"
+    pdf_path1 = "reporte1.pdf"
+    pdf_path2 = "reporte2.pdf"
+    pdf_path3 = "reporte3.pdf"
     combined_pdf_path = "reporte_combinado.pdf"
 
     # Generar ambos reportes
@@ -461,6 +537,10 @@ def todos(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, logo)
     informe1 = "INFORME DE INGRESOS Y GASTOS ESTATUTO DE LA OPOSICIÓN"
     reporte2(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path2, logo, informe1)
     pdfs.append(pdf_path2)
+    
+    informe1 = "GASTOS DESTINADOS PARA ACTIVIDADES CONTEMPLADAS EN EL ARTICULO 18 DE LA LEY 1475 DE 2011"
+    reporte3(datasetg, ingresos_dfg, egresos_dfg, total_ingresosg, total_egresosg, pdf_path3, logo, informe1)
+    pdfs.append(pdf_path3)
     
     generar_pdf(pdfs)
     open_pdf(combined_pdf_path)    
@@ -476,7 +556,6 @@ def todosc(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc,
     informe = "INFORME INDIVIDUAL DE INGRESOS Y GASTOS DE LA CAMPAÑA"
     reporte1c(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc, pdf_path1, logo, informe)
     pdfs.append(pdf_path1)
-    
    
     generar_pdf(pdfs)
     open_pdf(combined_pdf_path)
@@ -532,14 +611,20 @@ def open_pdf(pdf_path):
 def generar_pdf(pdfs):
     combined_pdf_path = "reporte_combinado.pdf"
     merger = PdfMerger()
+    
+    # Añadir todos los PDFs al merger
     for pdf in pdfs:
         merger.append(pdf)
-        merger.write(combined_pdf_path)
- #       merger.close()
+    
+    # Escribir el PDF combinado
+    merger.write(combined_pdf_path)
+    
+    # Cerrar el archivo
+    merger.close()
 
     # Eliminar los PDFs individuales después de combinarlos
- #   for pdf in pdfs:
- #       os.remove(pdf)
+    for pdf in pdfs:
+        os.remove(pdf)
  
 def crear_encabezado(logo_path, informe, title_size=12):
     # Configuración de estilos
@@ -638,7 +723,7 @@ def crear_pie_de_pagina3():
            <br/>
          <b>_____________________________________________________________________________________________</b <br/>  
            <b>NOTA: </b Para reportar los gastos en las casillas corespondientes, tener en cuenta el Articulo 11 de la Resolucion 3134 del 14 de <br/>
-                    diciembre de 2018 "De conformidad con el principio de la transparencia, al tenor de lo previsto en el articulo 19 de la Ley 1475 de 2011, <br/>
+                    diciembre de 2018 "De conformidad con el principio de la transparencia, al tenor de lo previsto en el articulo 19 de la Ley 1475 de 2011,
                     <b>los partidos o movimientos politicos con personeria juridica declarados en oposicion, al momento de hacer la rendicion 
                     publica de cuentas, deberan desagregar del total de los ingresos y gastos, el monto correspondiente al componente de la 
                     financiacion adicional, por lo que deberan discriminar el destino dado a estos recursos..."</b y conforme con los principios.<br/>""",

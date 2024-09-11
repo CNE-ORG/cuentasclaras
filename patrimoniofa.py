@@ -158,9 +158,7 @@ def write():
                     informe = inputss
                     pdf_path3 = "reporte3.pdf"
                     reporte3(datasetg, ingresos_dfg, egresos_dfg, total_ingresosg, total_egresosg, pdf_path3, logo, informe)
-                    st.write(datasetg)
                     st.write(data_agrupadag)
-                    st.write(egresos_dfg)
                     pdfs.append(pdf_path3)                    
 
         # Si se seleccionó más de un informe, combinarlos

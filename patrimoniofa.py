@@ -5,18 +5,20 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import matplotlib.patches as mpatches
 import streamlit as st
-from src.reportes import reporte1, reporte2, reporte1c, reporte4c, todos, varios1, todosc, todosc1, open_pdf
-from src.cargar import load_data1, load_data2, load_data3 
+from src.reportes import reporte1, reporte2, reporte3, reporte1c, reporte4c, todos, varios1, todosc, todosc1, open_pdf
+from src.cargar import load_data1, load_data2, load_data3, load_data4, load_data5 
 from streamlit_option_menu import option_menu
 from typing import List, Tuple
 
 
 @st.cache_data
-def load_and_cache_data(url1: str, url2: str, url3: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def load_and_cache_data(url1: str, url2: str, url3: str, url4: str, url5: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     df = load_data1(url1)
     df2 = load_data2(url2)
     df3 = load_data3(url3)
-    return df, df2, df3
+    df4 = load_data4(url4)
+    df5 = load_data5(url5)
+    return df, df2, df3, df4, df5
 
 def calculate_kpis(df: pd.DataFrame) -> List[float]:
     valor_total = df['valor'].sum()
@@ -35,9 +37,11 @@ def write():
     url = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/organizaciones_patrimonio.xlsx'
     url2 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/candidatos_consolidado.xlsx'
     url3 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/descripcionesFun.xlsx'
+    url4 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/gastos_destinados.xlsx'
+    url5 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/descripcionesDes.xlsx'
     logo = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/cne.jpg'
 
-    df, df2, df3 = load_and_cache_data(url, url2, url3)
+    df, df2, df3, df4, df5 = load_and_cache_data(url, url2, url3, url4, url5)
     
     # menu lateral
     with st.sidebar:
@@ -102,16 +106,36 @@ def write():
             # Calcular totales
             total_ingresos = ingresos_df['valor'].sum()
             total_egresos = egresos_df['valor'].sum()
+            
+            # otra BD gastos destinados
+            # Filtros interactivos
+            df_filtradog = df4[df4['nombre_agrupacion_politica'] == filtro_grupo] if filtro_grupo != 'Todos' else df
+            
+            # Unir con el archivo de descripciones
+            datasetg = df_filtradog.merge(df5, on='codigo', how='left')
+
+            # Agrupar los datos por tipo
+            data_agrupadag = datasetg.groupby(['tipo', 'codigo', 'descripcion']).agg({'valor': 'sum'}).reset_index()
+            #datasetg = data_agrupadag
+
+            # Filtrar ingresos y egresos
+            ingresos_dfg = data_agrupadag[data_agrupadag['tipo'] == 1]
+            egresos_dfg = data_agrupadag[data_agrupadag['tipo'] == 2]
+
+            # Calcular totales
+            total_ingresosg = ingresos_dfg['valor'].sum()
+            total_egresosg = egresos_dfg['valor'].sum()
+            
 
             st.write("## Otros informes")
-            inputss = st.multiselect("Cuales Informes desea descargar?", ["Todos", "DECLARACION DE PATRIMONIO, INGRESOS Y GASTOS ANUALES", "INFORME DE INGRESOS Y GASTOS ESTATUTO DE LA OPOSICIÓN"])
+            inputss = st.multiselect("Cuales Informes desea descargar?", ["Todos", "DECLARACION DE PATRIMONIO, INGRESOS Y GASTOS ANUALES", "INFORME DE INGRESOS Y GASTOS ESTATUTO DE LA OPOSICIÓN", "GASTOS DESTINADOS PARA ACTIVIDADES CONTEMPLADAS EN EL ARTICULO 18 DE LA LEY 1475 DE 2011"])
             st.write(inputss) 
             
             
             # Si se selecciona "Todos"
             if "Todos" in inputss:
                 pdfs = []
-                todos(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, logo)
+                todos(dataset, datasetg, ingresos_df, ingresos_dfg, egresos_df, egresos_dfg, total_ingresos, total_ingresosg, total_egresos, total_egresosg, logo)
             else:
                 # Lista para almacenar las rutas de los PDFs generados
                 pdfs = []
@@ -129,6 +153,15 @@ def write():
                     pdf_path2 = "reporte2.pdf"
                     reporte2(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path2, logo, informe)
                     pdfs.append(pdf_path2)
+                
+                if "GASTOS DESTINADOS PARA ACTIVIDADES CONTEMPLADAS EN EL ARTICULO 18 DE LA LEY 1475 DE 2011" in inputss:
+                    informe = inputss
+                    pdf_path3 = "reporte3.pdf"
+                    reporte3(datasetg, ingresos_dfg, egresos_dfg, total_ingresosg, total_egresosg, pdf_path3, logo, informe)
+                    st.write(datasetg)
+                    st.write(data_agrupadag)
+                    st.write(egresos_dfg)
+                    pdfs.append(pdf_path3)                    
 
         # Si se seleccionó más de un informe, combinarlos
                 if len(pdfs) > 1:

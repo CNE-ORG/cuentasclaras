@@ -570,7 +570,6 @@ def todosc1(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc
     pdfs = []
     informe1 = "Error"
     reporte4c(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc, pdf_path1, logo, informe1)
-    #reporte1c(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc,  pdf_path1, logo)
     pdfs.append(pdf_path1)
     
     generar_pdf(pdfs)
@@ -587,8 +586,11 @@ def varios1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf
             informe1 = "DECLARACION DE PATRIMONIO, INGRESOS Y GASTOS ANUALES"
             reporte1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf, logo, informe1)
         elif pdf == "reporte2.pdf":
-            informe1 = "INFORME DE INGRESOS Y GASTOS ESTATUTO DE LA OPOSICIÓN"
-            reporte2(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf, logo, informe1)
+            informe2 = "INFORME DE INGRESOS Y GASTOS ESTATUTO DE LA OPOSICIÓN"
+            reporte2(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf, logo, informe2)
+        elif pdf == "reporte3.pdf":
+            informe3 = "GASTOS DESTINADOS PARA ACTIVIDADES CONTEMPLADAS EN EL ARTICULO 18 DE LA LEY 1475 DE 2011"
+            reporte3(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf, logo, informe3)            
     
     if len(pdfs) > 1:
        generar_pdf(pdfs)

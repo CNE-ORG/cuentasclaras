@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import matplotlib.patches as mpatches
 import streamlit as st
-from src.reportes import reporte1, reporte2, reporte3, reporte4, reporte5, reporte6, reporte_mejorado, reporte1c, reporte2c, todos, varios, varios1, todosc, todosc1, open_pdf
+from src.reportes import reporte1, reporte2, reporte1c, reporte4c, todos, varios1, todosc, todosc1, open_pdf
 from src.cargar import load_data1, load_data2, load_data3 
 from streamlit_option_menu import option_menu
 from typing import List, Tuple
@@ -34,7 +34,7 @@ def write():
 
     url = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/organizaciones_patrimonio.xlsx'
     url2 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/candidatos_consolidado.xlsx'
-    url3 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/descripciones.xlsx'
+    url3 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/descripcionesFun.xlsx'
     logo = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/cne.jpg'
 
     df, df2, df3 = load_and_cache_data(url, url2, url3)
@@ -104,7 +104,7 @@ def write():
             total_egresos = egresos_df['valor'].sum()
 
             st.write("## Otros informes")
-            inputss = st.multiselect("Cuales Informes desea descargar?", ["Todos", "DECLARACION DE PATRIMONIO, INGRESOS Y GASTOS ANUALES", "INFORME DE INGRESOS Y GASTOS ESTATUTO DE LA OPOSICIÓN", "GASTOS DESTINADOS PARA ACTIVIDADES CONTEMPLADAS EN EL ARTICULO 18 DE LA LEY 1475 DE 2011"])
+            inputss = st.multiselect("Cuales Informes desea descargar?", ["Todos", "DECLARACION DE PATRIMONIO, INGRESOS Y GASTOS ANUALES", "INFORME DE INGRESOS Y GASTOS ESTATUTO DE LA OPOSICIÓN"])
             st.write(inputss) 
             
             
@@ -119,21 +119,16 @@ def write():
                 # Generar los informes seleccionados
                 if "DECLARACION DE PATRIMONIO, INGRESOS Y GASTOS ANUALES" in inputss:
                     informe = inputss
-                    pdf_path5 = "reporte5.pdf"
-                    reporte5(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path5, logo, informe)
-                    pdfs.append(pdf_path5)
+                    pdf_path1 = "reporte1.pdf"
+                    reporte1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path1, logo, informe)
+                    st.write(data_agrupada)
+                    pdfs.append(pdf_path1)
                     
                 if "INFORME DE INGRESOS Y GASTOS ESTATUTO DE LA OPOSICIÓN" in inputss:
                     informe = inputss
                     pdf_path2 = "reporte2.pdf"
-                    reporte6(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path2, logo, informe)
+                    reporte2(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path2, logo, informe)
                     pdfs.append(pdf_path2)
-                    
-                if "GASTOS DESTINADOS PARA ACTIVIDADES CONTEMPLADAS EN EL ARTICULO 18 DE LA LEY 1475 DE 2011" in inputss:
-                    informe = inputss
-                    pdf_path3 = "reporte3.pdf"
-                    reporte_mejorado(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path3, logo, informe)
-                    pdfs.append(pdf_path3)                    
 
         # Si se seleccionó más de un informe, combinarlos
                 if len(pdfs) > 1:
@@ -141,10 +136,7 @@ def write():
                 elif len(pdfs) == 1:
                     open_pdf(pdfs[0])  
 
-    
-
     elif selected == "Candidatos":
-            
             
             # Filtros interactivos
             filtro_grupo = st.sidebar.selectbox('Filtrar por Agrupacion Politica', df['nombre_agrupacion_politica'].unique())
@@ -173,31 +165,30 @@ def write():
             total_egresosc = egresos_dfc['valor'].sum()
         
             st.write("## Informes Candidatos")
-            inputsc = st.multiselect("Cuales Informes desea descargar?", ["Todos", "INFORME INDIVIDUAL DE INGRESOS Y GASTOS DE LA CAMPAÑA", "Otros"])
+            inputsc = st.multiselect("Cuales Informes desea descargar?", ["Todos", "INFORME INDIVIDUAL DE INGRESOS Y GASTOS DE LA CAMPAÑA"])
             st.write(inputsc) 
             
             # Si se selecciona "Todos"
             if "Todos" in inputsc:
-                pdfs = []
-                todosc(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc)
+                pdfsc = []
+                pdf_path1 = "reporte1c.pdf"
+                todosc(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc, pdf_path1, logo)
             else:
                 # Lista para almacenar las rutas de los PDFs generados
-                pdfs = []
+                pdfsc = []
 
                 # Generar los informes seleccionados
                 if "INFORME INDIVIDUAL DE INGRESOS Y GASTOS DE LA CAMPAÑA" in inputsc:
+                    informe = inputsc
                     pdf_path1 = "reporte1c.pdf"
-                    reporte1c(datasetc,ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc, pdf_path1, logo)
-                    pdfs.append(pdf_path1)
-                   
-                if "Otros" in inputsc:
-                    pdf_path3 = "reporte2c.pdf"
-                    reporte2c(datasetc,ingresos_dfc,egresos_dfc,total_ingresosc,total_egresosc, pdf_path3)
-                    pdfs.append(pdf_path3)                    
+                    reporte1c(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc, pdf_path1, logo, informe)
+                    pdfsc.append(pdf_path1)
 
         # Si se seleccionó más de un informe, combinarlos
-            if len(pdfs) >= 1:
-                todosc1(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc, pdfs, logo )
+            if len(pdfsc) > 1:
+                todosc1(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc, pdfsc, logo )
+            elif len(pdfsc) == 1:
+                open_pdf(pdfsc[0])  
             
     elif selected == "Otros Informes":
 
@@ -232,22 +223,6 @@ def write():
             else:
                 # Lista para almacenar las rutas de los PDFs generados
                 pdfs = []
-
-                # Generar los informes seleccionados
-                if "DECLARACION DE PATRIMONIO, INGRESOS Y GASTOS ANUALES" in inputss:
-                    pdf_path1 = "reporte1.pdf"
-                    reporte1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path1)
-                    pdfs.append(pdf_path1)
-                    
-                if "INFORME DE INGRESOS Y GASTOS ESTATUTO DE LA OPOSICIÓN" in inputss:
-                    pdf_path2 = "reporte2.pdf"
-                    reporte2(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path2)
-                    pdfs.append(pdf_path2)
-                    
-                if "GASTOS DESTINADOS PARA ACTIVIDADES CONTEMPLADAS EN EL ARTICULO 18 DE LA LEY 1475 DE 2011" in inputss:
-                    pdf_path3 = "reporte3.pdf"
-                    reporte3(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path3)
-                    pdfs.append(pdf_path3)                    
 
         # Si se seleccionó más de un informe, combinarlos
                 if len(pdfs) > 1:

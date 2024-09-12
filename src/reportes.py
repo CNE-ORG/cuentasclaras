@@ -527,11 +527,41 @@ def reporte3(datasetg, ingresos_dfg, egresos_dfg, total_ingresosg, total_egresos
     
 def reporte4(dataseti, ingresos_dfi, egresos_dfi, total_ingresosi, total_egresosi, pdf_path, logo_path, informe, title_size=12):
 
-    nit = dataseti['nit'].unique()[0]
-    representante_legal = dataseti['representante_legal'].unique()[0]
-    organizacion_politica = dataseti['nombre_agrupacion_politica'].unique()[0]
-    documento_representante = dataseti['documento_representante'].unique()[0]
-        
+    #nit = dataseti['nit'].unique()[0]
+    #representante_legal = dataseti['representante_legal'].unique()[0]
+    #organizacion_politica = dataseti['nombre_agrupacion_politica'].unique()[0]
+    #documento_representante = dataseti['documento_representante'].unique()[0]
+       
+    # Verificar si dataseti tiene registros antes de acceder a sus datos
+    if dataseti.empty:
+        st.error("No hay datos disponibles para la agrupación política seleccionada.")
+        return  # Detener la ejecución de la función si no hay datos
+
+    # Asegurarse de que el valor de 'nit' esté presente
+    nit_values = dataseti['nit'].unique()
+    if len(nit_values) == 0:
+        nit = "N/A"  # Valor por defecto si no hay NIT
+    else:
+        nit = nit_values[0]
+
+    representante_legal_values = dataseti['representante_legal'].unique()
+    if len(representante_legal_values) == 0:
+        representante_legal = "N/A"  # Valor por defecto si no hay representante legal
+    else:
+        representante_legal = representante_legal_values[0]
+
+    organizacion_politica_values = dataseti['nombre_agrupacion_politica'].unique()
+    if len(organizacion_politica_values) == 0:
+        organizacion_politica = "N/A"  # Valor por defecto si no hay nombre de agrupación política
+    else:
+        organizacion_politica = organizacion_politica_values[0]
+
+    documento_representante_values = dataseti['documento_representante'].unique()
+    if len(documento_representante_values) == 0:
+        documento_representante = "N/A"  # Valor por defecto si no hay documento de representante
+    else:
+        documento_representante = documento_representante_values[0]
+      
     # Crear PDF
     doc = SimpleDocTemplate(pdf_path, pagesize=landscape(letter), rightMargin=28, leftMargin=28, topMargin=28, bottomMargin=28)
     elements = []
@@ -620,22 +650,27 @@ def todos(dataset, datasetg, dataseti, ingresos_df, ingresos_dfg, ingresos_dfi, 
     pdfs = []
     informe1 = "DECLARACION DE PATRIMONIO, INGRESOS Y GASTOS ANUALES"
     reporte1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path1, logo, informe1)
-    pdfs.append(pdf_path1)
+    if os.path.exists(pdf_path1):
+        pdfs.append(pdf_path1)
     
     informe1 = "INFORME DE INGRESOS Y GASTOS ESTATUTO DE LA OPOSICIÓN"
     reporte2(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf_path2, logo, informe1)
-    pdfs.append(pdf_path2)
+    if os.path.exists(pdf_path2):
+        pdfs.append(pdf_path2)
     
     informe1 = "GASTOS DESTINADOS PARA ACTIVIDADES CONTEMPLADAS EN EL ARTICULO 18 DE LA LEY 1475 DE 2011"
     reporte3(datasetg, ingresos_dfg, egresos_dfg, total_ingresosg, total_egresosg, pdf_path3, logo, informe1)
-    pdfs.append(pdf_path3)
+    if os.path.exists(pdf_path3):
+        pdfs.append(pdf_path3)
     
     informe1 = "CONTRIBUCIONES, DONACIONES Y CREDITOS, EN DINERO O EN ESPECIE, DE SUS AFILIADOS Y/O DE PARTICULARES"
-    reporte4(dataseti, ingresos_dfi, egresos_dfi, total_ingresosi, total_egresosi, pdf_path4, logo, informe1)
-    pdfs.append(pdf_path4)
+    if not dataseti.empty:  # Verifica si hay datos antes de generar el reporte
+        reporte4(dataseti, ingresos_dfi, egresos_dfi, total_ingresosi, total_egresosi, pdf_path4, logo, informe1)
+    if os.path.exists(pdf_path4):
+            pdfs.append(pdf_path4)
     
     generar_pdf(pdfs)
-    open_pdf(combined_pdf_path)    
+    open_pdf(combined_pdf_path)
 
 def todosc(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc, pdf, logo):
     # Definir ruta para los archivos PDF temporales
@@ -708,10 +743,17 @@ def generar_pdf(pdfs):
     
     # Añadir todos los PDFs al merger
     for pdf in pdfs:
-        merger.append(pdf)
+        if os.path.exists(pdf):  # Verifica si el archivo existe
+            merger.append(pdf)
+        else:
+            print(f"Advertencia: El archivo {pdf} no se encontró y no se incluirá en el PDF combinado.")
     
-    # Escribir el PDF combinado
-    merger.write(combined_pdf_path)
+    # Guardar el PDF combinado si hay archivos válidos
+    if merger.pages:
+        merger.write(combined_pdf_path)
+        merger.close()
+    else:
+        print("No se generaron archivos PDF para combinar.") 
     
     # Cerrar el archivo
     merger.close()
@@ -719,7 +761,7 @@ def generar_pdf(pdfs):
     # Eliminar los PDFs individuales después de combinarlos
     for pdf in pdfs:
         os.remove(pdf)
- 
+        
 def crear_encabezado(logo_path, informe, title_size=12):
     # Configuración de estilos
     styles = getSampleStyleSheet()

@@ -134,15 +134,26 @@ def write():
             dataseti = df_filtradoi
             
             # Agrupar los datos por tipo
-            data_agrupadai = dataseti.groupby(['tipo', 'codigo', 'concepto', 'persona', 'cedula', 'telefono', 'direccion', 'acta']).agg({'valor': 'sum'}).reset_index()
+            #data_agrupadai = dataseti.groupby(['tipo', 'codigo', 'concepto', 'persona', 'cedula', 'telefono', 'direccion', 'acta']).agg({'valor': 'sum'}).reset_index()
+            
+            
+            # Agrupar los datos por tipo
+            if not dataseti.empty:
+                data_agrupadai = dataseti.groupby(['tipo', 'codigo', 'concepto', 'persona', 'cedula', 'telefono', 'direccion', 'acta']).agg({'valor': 'sum'}).reset_index()
+            else:
+                data_agrupadai = pd.DataFrame(columns=['tipo', 'codigo', 'concepto', 'persona', 'cedula', 'telefono', 'direccion', 'acta', 'valor'])
             
             # Filtrar ingresos y egresos
             ingresos_dfi = dataseti[dataseti['tipo'] == 1]
             egresos_dfi = dataseti[dataseti['tipo'] == 2]
 
             # Calcular totales
-            total_ingresosi = ingresos_dfi['valor'].sum()
-            total_egresosi = egresos_dfi['valor'].sum()
+            #total_ingresosi = ingresos_dfi['valor'].sum()
+            #total_egresosi = egresos_dfi['valor'].sum()
+            
+            # Calcular totales
+            total_ingresosi = ingresos_dfi['valor'].sum() if not ingresos_dfi.empty else 0
+            total_egresosi = egresos_dfi['valor'].sum() if not egresos_dfi.empty else 0
             
 
             st.write("## Informes de Organización")

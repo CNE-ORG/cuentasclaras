@@ -69,4 +69,24 @@ def load_data5(url5):
     # Cargamos los datos desde el archivo Excel
     df5 = pd.read_excel(BytesIO(response.content), engine='openpyxl')
     
-    return df5      
+    return df5 
+
+def load_data6(url6):
+    # Descargamos el archivo desde la URL
+    response = requests.get(url6)
+    response.raise_for_status()  # Esto lanzará una excepción si la descarga falla
+
+    # Cargamos los datos desde el archivo Excel
+    df6 = pd.read_excel(BytesIO(response.content), engine='openpyxl')
+    
+    return df6
+
+def load_data7(url7):
+    # Descargamos el archivo desde la URL
+    response = requests.get(url7)
+    response.raise_for_status()  # Esto lanzará una excepción si la descarga falla
+
+    # Cargamos los datos desde el archivo Excel
+    df7 = pd.read_excel(BytesIO(response.content), engine='openpyxl')
+    
+    return df7       

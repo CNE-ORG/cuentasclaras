@@ -8,7 +8,7 @@ from PyPDF2 import PdfMerger
 import os
 import subprocess
 import streamlit as st
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image, Paragraph, Spacer
@@ -495,6 +495,10 @@ def reporte3(datasetg, ingresos_dfg, egresos_dfg, total_ingresosg, total_egresos
     ingresos_data = [[row[0], Paragraph(row[1], text_style), f'{row[2]:,.2f}'] for row in ingresos[['codigo', 'descripcion', 'valor']].values]
     egresos_data = [[row[0], Paragraph(row[1], text_style), f'{row[2]:,.2f}'] for row in egresos[['codigo', 'descripcion', 'valor']].values]
     
+    
+    # Añadir totales
+    egresos_data.append(["", Paragraph("Valor Total: $", total_style), f'{total_egresosg:,.2f}'])
+    
     # Títulos de las tablas
     encabezado_tabla = [['CODIGO', 'CONCEPTO', 'VALOR']]
     
@@ -521,11 +525,95 @@ def reporte3(datasetg, ingresos_dfg, egresos_dfg, total_ingresosg, total_egresos
     # Generar PDF
     doc.build(elements)       
     
-def todos(dataset, datasetg, ingresos_df, ingresos_dfg, egresos_df, egresos_dfg, total_ingresos, total_ingresosg, total_egresos, total_egresosg, logo):
+def reporte4(dataseti, ingresos_dfi, egresos_dfi, total_ingresosi, total_egresosi, pdf_path, logo_path, informe, title_size=12):
+
+    nit = dataseti['nit'].unique()[0]
+    representante_legal = dataseti['representante_legal'].unique()[0]
+    organizacion_politica = dataseti['nombre_agrupacion_politica'].unique()[0]
+    documento_representante = dataseti['documento_representante'].unique()[0]
+        
+    # Crear PDF
+    doc = SimpleDocTemplate(pdf_path, pagesize=landscape(letter), rightMargin=28, leftMargin=28, topMargin=28, bottomMargin=28)
+    elements = []
+    
+    # Inicializar los estilos al principio de la función
+    styles = getSampleStyleSheet()
+    
+    # Llamar a la función para crear el encabezado
+    encabezado = crear_encabezado(logo_path, informe, title_size)
+    elements.append(encabezado)
+    
+    # Espacio antes de las tablas
+    elements.append(Spacer(1, 6))  # Reducido para ahorrar espacio
+    
+    # Encabezado de la organización política
+    encabezado_info = f"""
+    <b>Nombre Agrupación Política:</b> {organizacion_politica}<br/>
+    <b>NIT:</b> {nit}<br/>
+    <b>Representante Legal:</b> {representante_legal} ({documento_representante})<br/>
+    """
+    elements.append(Paragraph(encabezado_info, styles["Normal"]))
+    
+    # Espacio antes de las tablas detalladas
+    elements.append(Spacer(1, 32))
+    
+    # Obtener estilos
+    styles = getSampleStyleSheet()
+
+    # Crear un estilo con ajuste de texto
+    text_style = ParagraphStyle(name='TextStyle', fontName='Helvetica', fontSize=7, alignment=0, wordWrap='CJK')
+    
+    # Definir un nuevo estilo para los totales
+    total_style = ParagraphStyle(name='TotalStyle', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=12, spaceAfter=6, alignment=0)
+
+    # Filtro codigo
+    # Filtrar ingresos y egresos
+    ingresos = ingresos_dfi[ingresos_dfi['tipo'] == 1]
+    egresos = egresos_dfi[egresos_dfi['tipo'] == 2] 
+
+    # Tablas detalladas de ingresos y egresos
+    ingresos_data = [[Paragraph(row[0], text_style), row[1], row[2], Paragraph(row[3], text_style),Paragraph(row[4], text_style), row[5], f'{row[6]:,.2f}'] for row in ingresos[['persona', 'cedula', 'telefono', 'direccion', 'concepto', 'acta', 'valor']].values]
+    
+    # Añadir totales
+    ingresos_data.append(["", "", "", "", Paragraph("Valor Total: $", total_style), "", f'{total_ingresosi:,.2f}'])
+    
+    # Títulos de las tablas
+    encabezado_tabla = [['NOMBRE DE LA PERSONA', 'NIT-CEDULA', 'TELEFONO', 'DIRECCION', 'CONCEPTO', 'ACTA', 'VALOR']]
+
+    # Ajustar el ancho de las columnas para que se alineen mejor
+    col_ancho = [2.4 * inch, 0.9 * inch, 0.8 * inch, 2 * inch, 2.5 * inch, 0.4 * inch, 1 * inch]
+
+    # Crear tabla de ingresos y egresos
+    tabla_ingresos_egresos = Table(encabezado_tabla + ingresos_data, colWidths=col_ancho)
+    tabla_ingresos_egresos.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 7),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+    ]))
+    
+    # Añadir la tabla ajustada a los elementos
+    elements.append(tabla_ingresos_egresos)
+    
+    # Espacio antes del pie de página
+    elements.append(Spacer(1, 24))  # Reducido para ahorrar espacio
+
+    # Llamar a la función para crear el segundo pie de página
+    pie_de_pagina3 = crear_pie_de_pagina3()
+    elements.append(pie_de_pagina3)
+    
+    # Generar PDF
+    doc.build(elements)          
+    
+def todos(dataset, datasetg, dataseti, ingresos_df, ingresos_dfg, ingresos_dfi, egresos_df, egresos_dfg, egresos_dfi, total_ingresos, total_ingresosg, total_ingresosi, total_egresos, total_egresosg, total_egresosi, logo):
     # Definir ruta para los archivos PDF temporales
     pdf_path1 = "reporte1.pdf"
     pdf_path2 = "reporte2.pdf"
     pdf_path3 = "reporte3.pdf"
+    pdf_path4 = "reporte4.pdf"
     combined_pdf_path = "reporte_combinado.pdf"
 
     # Generar ambos reportes
@@ -541,6 +629,10 @@ def todos(dataset, datasetg, ingresos_df, ingresos_dfg, egresos_df, egresos_dfg,
     informe1 = "GASTOS DESTINADOS PARA ACTIVIDADES CONTEMPLADAS EN EL ARTICULO 18 DE LA LEY 1475 DE 2011"
     reporte3(datasetg, ingresos_dfg, egresos_dfg, total_ingresosg, total_egresosg, pdf_path3, logo, informe1)
     pdfs.append(pdf_path3)
+    
+    informe1 = "CONTRIBUCIONES, DONACIONES Y CREDITOS, EN DINERO O EN ESPECIE, DE SUS AFILIADOS Y/O DE PARTICULARES"
+    reporte4(dataseti, ingresos_dfi, egresos_dfi, total_ingresosi, total_egresosi, pdf_path4, logo, informe1)
+    pdfs.append(pdf_path4)
     
     generar_pdf(pdfs)
     open_pdf(combined_pdf_path)    

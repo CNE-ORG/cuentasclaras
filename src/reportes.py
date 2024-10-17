@@ -25,6 +25,9 @@ def reporte1c(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egreso
     nombre_completo = datasetc['nombre_completo'].unique()[0]
     numero_documento = datasetc['numero_documento'].unique()[0]
     nit = datasetc['tipo_organizacion'].unique()[0]
+    departamento = datasetc['nombre_departamento'].unique()[0]
+    municipio = datasetc['nombre_municipio'].unique()[0]
+    corporacion = datasetc['nombre_corporacion'].unique()[0]
 
     # Crear PDF
     doc = SimpleDocTemplate(pdf_path, pagesize=letter, rightMargin=32, leftMargin=52, topMargin=32, bottomMargin=52)
@@ -44,6 +47,9 @@ def reporte1c(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egreso
     encabezado_info = f"""
     <b>Nombre Candidato:</b> {nombre_completo}<br/>
     <b>Cedula de Ciudadania:</b> {numero_documento}<br/>
+    <b>Departamento:</b> {departamento}<br/>
+    <b>Municipio:</b> {municipio}<br/>
+    <b>Nombre Corporación:</b> {corporacion}<br/>
     <b>Nombre Agrupación Política:</b> {organizacion_politica} ({nit})<br/>
     """
     elements.append(Paragraph(encabezado_info, styles["Normal"]))
@@ -76,8 +82,8 @@ def reporte1c(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egreso
 
 
     # Tablas detalladas de ingresos y egresos
-    ingresos_data = [[row[0], row[1], f'{row[2]:,.2f}'] for row in ingresos_dfc[['codigo', 'descripcion', 'valor']].values]
-    egresos_data = [[row[0], row[1], f'{row[2]:,.2f}'] for row in egresos_dfc[['codigo', 'descripcion', 'valor']].values]
+    ingresos_data = [[row[0], row[1], f'{row[2]:,.2f}'] for row in ingresos_dfc[['codigo', 'descripcion', 'total']].values]
+    egresos_data = [[row[0], row[1], f'{row[2]:,.2f}'] for row in egresos_dfc[['codigo', 'descripcion', 'total']].values]
     
     # Añadir totales
     ingresos_data.append(["", "Total Ingresos Anuales", f'{total_ingresosc:,.2f}'])
@@ -500,7 +506,7 @@ def reporte3(datasetg, ingresos_dfg, egresos_dfg, total_ingresosg, total_egresos
     egresos_data.append(["", Paragraph("Valor Total: $", total_style), f'{total_egresosg:,.2f}'])
     
     # Títulos de las tablas
-    encabezado_tabla = [['CODIGO', 'CONCEPTO', 'VALOR']]
+    encabezado_tabla = [['NO.', 'DESTINACION DE LOS RECURSOS', 'VALOR']]
     
     # Crear tabla de ingresos y egresos
     tabla_ingresos_egresos = Table(encabezado_tabla + ingresos_data + egresos_data, colWidths=[0.5*inch, 6*inch, 1*inch])
@@ -602,7 +608,13 @@ def reporte4(dataseti, ingresos_dfi, egresos_dfi, total_ingresosi, total_egresos
     egresos = egresos_dfi[egresos_dfi['tipo'] == 2] 
 
     # Tablas detalladas de ingresos y egresos
-    ingresos_data = [[Paragraph(row[0], text_style), row[1], row[2], Paragraph(row[3], text_style),Paragraph(row[4], text_style), row[5], f'{row[6]:,.2f}'] for row in ingresos[['persona', 'cedula', 'telefono', 'direccion', 'concepto', 'acta', 'valor']].values]
+    ingresos_data = [[
+       Paragraph(row[0], text_style), 
+       row[1], row[2], Paragraph(row[3], text_style),
+       Paragraph(row[4], text_style), 
+       row[5][:5] if len(str(row[5])) > 5 else row[5],  # Limitar 'acta' a un máximo de 5 caracteres
+       f'{row[6]:,.2f}'
+    ] for row in ingresos[['persona', 'cedula', 'telefono', 'direccion', 'concepto', 'acta', 'valor']].values]
     
     # Añadir totales
     ingresos_data.append(["", "", "", "", Paragraph("Valor Total: $", total_style), "", f'{total_ingresosi:,.2f}'])
@@ -703,7 +715,7 @@ def todosc1(datasetc, ingresos_dfc, egresos_dfc, total_ingresosc, total_egresosc
     open_pdf(combined_pdf_path)  
        
        
-def varios1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdfs, logo):
+def varios1(dataset, datasetg, dataseti, ingresos_df, ingresos_dfg, ingresos_dfi, egresos_df, egresos_dfg, egresos_dfi, total_ingresos, total_ingresosg, total_ingresosi, total_egresos, total_egresosg, total_egresosi, logo, pdfs):
     
     combined_pdf_path = "reporte_combinado.pdf"
     # Si se seleccionó más de un informe, combinarlos
@@ -717,7 +729,10 @@ def varios1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf
             reporte2(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf, logo, informe2)
         elif pdf == "reporte3.pdf":
             informe3 = "GASTOS DESTINADOS PARA ACTIVIDADES CONTEMPLADAS EN EL ARTICULO 18 DE LA LEY 1475 DE 2011"
-            reporte3(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdf, logo, informe3)            
+            reporte3(datasetg, ingresos_dfg, egresos_dfg, total_ingresosg, total_egresosg, pdf, logo, informe3)
+        elif pdf == "reporte4.pdf":
+            informe4 = "CONTRIBUCIONES, DONACIONES Y CREDITOS, EN DINERO O EN ESPECIE, DE SUS AFILIADOS Y/O DE PARTICULARES"
+            reporte4(dataseti, ingresos_dfi, egresos_dfi, total_ingresosi, total_egresosi, pdf, logo, informe4)            
     
     if len(pdfs) > 1:
        generar_pdf(pdfs)

@@ -36,7 +36,7 @@ def display_kpi_metrics(kpis: List[float], kpi_names: List[str]):
 
 def write():
 
-    url = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/organizaciones_patrimonio.xlsx'
+    url1 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/organizaciones_patrimonio.xlsx'
     url2 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/candidatos_consolidado.xlsx'
     url3 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/descripcionesFun.xlsx'
     url4 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/gastos_destinados.xlsx'
@@ -45,7 +45,7 @@ def write():
     url7 = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/descripcionesDes.xlsx'
     logo = 'https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/cne.jpg'
 
-    df, df2, df3, df4, df5, df6, df7 = load_and_cache_data(url, url2, url3, url4, url5, url6, url7)
+    df, df2, df3, df4, df5, df6, df7 = load_and_cache_data(url1, url2, url3, url4, url5, url6, url7)
     
     # menu lateral
     with st.sidebar:
@@ -199,7 +199,7 @@ def write():
 
         # Si se seleccionó más de un informe, combinarlos
                 if len(pdfs) > 1:
-                    varios1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pdfs, logo)
+                    varios1(dataset, datasetg, dataseti, ingresos_df, ingresos_dfg, ingresos_dfi, egresos_df, egresos_dfg, egresos_dfi, total_ingresos, total_ingresosg, total_ingresosi, total_egresos, total_egresosg, total_egresosi, logo, pdfs)
                 elif len(pdfs) == 1:
                     open_pdf(pdfs[0])  
 
@@ -221,15 +221,15 @@ def write():
             df_filtradocan = df_filtradocor[df_filtradocor['nombre_completo'] == filtro_candidato]
             datasetc = df_filtradocan
 
-            data_agrupadac = df_filtradocan.groupby(['tipo', 'codigo', 'nombre', 'descripcion']).agg({'valor': 'sum'}).reset_index()
+            data_agrupadac = df_filtradocan.groupby(['tipo', 'codigo', 'nombre', 'descripcion']).agg({'total': 'sum'}).reset_index()
 
             # Filtrar ingresos y egresos
             ingresos_dfc = data_agrupadac[data_agrupadac['tipo'] == 1]
             egresos_dfc = data_agrupadac[data_agrupadac['tipo'] == 2]
 
             # Calcular totales
-            total_ingresosc = ingresos_dfc['valor'].sum()
-            total_egresosc = egresos_dfc['valor'].sum()
+            total_ingresosc = ingresos_dfc['total'].sum()
+            total_egresosc = egresos_dfc['total'].sum()
         
             st.write("## Informes Candidatos")
             inputsc = st.multiselect("Cuales Informes desea descargar?", ["Todos", "INFORME INDIVIDUAL DE INGRESOS Y GASTOS DE LA CAMPAÑA"])

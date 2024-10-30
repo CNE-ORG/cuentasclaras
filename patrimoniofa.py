@@ -9,8 +9,48 @@ from src.reportes import reporte1, reporte2, reporte3, reporte4, reporte1c, repo
 from src.cargar import load_data1, load_data2, load_data3, load_data4, load_data5, load_data6, load_data7 
 from streamlit_option_menu import option_menu
 from typing import List, Tuple
+import seaborn as sns
 
+st.set_page_config(layout="wide")
 
+# CSS personalizado para eliminar márgenes superiores
+st.markdown(
+    """
+    <style>
+    /* Quitar el espacio superior del contenedor principal */
+    .css-18e3th9 {
+        padding-top: 0px;
+    }
+    /* Subir el logo y ajustarlo al tope */
+    .logo {
+        margin-top: -70px;  /* Ajustar el logo más cerca del borde superior */
+    }
+    /* Alinear y subir el título */
+    .title {
+        margin-top: -60px;
+        text-align: left;
+        font-size: 2.5em;
+        font-weight: bold;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Cargar el logo y el título alineados
+logo_url = "https://raw.githubusercontent.com/CNE-ORG/cuentasclaras/main/data/cne.jpg"
+st.markdown(f"""
+    <div class="logo">
+        <img src="{logo_url}" width="200">
+    </div>
+    """, unsafe_allow_html=True)
+
+# Encabezado principal con markdown
+# st.markdown("<h1 style='text-align: center; margin-top: 0px;'>Dashboard de Reportes de Organizaciones Políticas</h1>", unsafe_allow_html=True)
+
+# Encabezado principal
+st.title("Dashboard de Reportes de Organizaciones Políticas")
+   
 @st.cache_data
 def load_and_cache_data(url1: str, url2: str, url3: str, url4: str, url5: str, url6: str, url7: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     df = load_data1(url1)
@@ -56,12 +96,11 @@ def write():
                                    default_index=0)
 
     if selected == "Home":
-            
-            dataset = df
-            
-            # Unir con el archivo de descripciones
-            df_filtrado = df.merge(df3, on='codigo', how='left')
                         
+            # Unir con el archivo de descripciones
+            dataset = df
+            df_filtrado = df.merge(df3, on='codigo', how='left')
+                                
             # Agrupar los datos por tipo
             data_agrupada = df_filtrado.groupby(['tipo', 'codigo', 'nombre', 'descripcion']).agg({'valor': 'sum'}).reset_index()
             
@@ -73,22 +112,71 @@ def write():
             total_ingresos = ingresos_df['valor'].sum()
             total_egresos = egresos_df['valor'].sum()
             
-            # Mostrar resumen de los datos
-            st.subheader('Resumen de Datos Filtrados')
-            st.write('Organizacion Politica:', dataset['nombre_agrupacion_politica'].unique()[0])
-            st.write('Total Ingresos:', f'{total_ingresos:,.2f}')
-            st.write('Total Egresos:', f'{total_egresos:,.2f}')
-
-            # Mostrar tabla de datos filtrados
-            st.subheader('Datos Filtrados')
-
-            kpis = calculate_kpis(df_filtrado)
+            data_grafica = df_filtrado.groupby(['tipo', 'nombre_agrupacion_politica']).agg({'valor': 'sum'}).reset_index()
+            ingresos_grafica = data_grafica[data_grafica['tipo'] == 1]
+            egresos_grafica = data_grafica[data_grafica['tipo'] == 2]
+            
+            # KPI Metrics
+            kpis = calculate_kpis(df)
             kpi_names = ["Vlr_Total", "Cantidad Organizaciones", "Promedio Org", "Cantidad Org"]
             display_kpi_metrics(kpis, kpi_names)
 
+            st.subheader("Visualización de Datos")
+
+            # Gráficas en una tabla de 3x3
+            st.write("**Gráficos Comparativos (Distribución Ingresos y Egresos)**")
+            
+            fig1, ax1 = plt.subplots()
+            sns.barplot(x="codigo", y="valor", hue="tipo", data=df, ax=ax1)
+            ax1.set_ylabel("Valor Total")
+            ax1.set_xlabel("Código")
+            
+            fig2, ax2 = plt.subplots()
+            distribucion_tipo = df.groupby('tipo')['valor'].sum()
+            ax2.pie(distribucion_tipo, labels=["Ingresos", "Egresos"], autopct='%1.1f%%', colors=['#4CAF50', '#FF5722'])
+            
+            fig3, ax3 = plt.subplots()
+            sns.lineplot(x="codigo", y="valor", hue="tipo", data=df, ax=ax3)
+            ax3.set_ylabel("Valor Total")
+            ax3.set_xlabel("Código")
+
+            # Disposición 3x3 para gráficas
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.pyplot(fig1)
+            with col2:
+                st.pyplot(fig2)
+            with col3:
+                st.pyplot(fig3)
+
+            # Más gráficas pueden ir en las siguientes filas
+            fig4, ax4 = plt.subplots()
+            sns.barplot(x="codigo", y="valor", hue="tipo", data=df, ax=ax4)
+            ax4.set_ylabel("Valor Total")
+            ax4.set_xlabel("Código")
+            
+            fig5, ax5 = plt.subplots()
+            st.write("**Ingresos por Agrupación Politica**")
+            sns.barplot(x="nombre_agrupacion_politica", y="valor", hue="tipo", data=ingresos_grafica, ax=ax5)
+            ax5.set_ylabel("Valor Total")
+            ax5.set_xlabel("Código")
+            # st.write(ingresos_df.head(10))
+            
+            fig6, ax6 = plt.subplots()
+            ax6.pie(distribucion_tipo, labels=["Ingresos", "Egresos"], autopct='%1.1f%%', colors=['#4CAF50', '#FF5722'])
+
+            # Segunda fila de gráficas
+            col4, col5, col6 = st.columns(3)
+            with col4:
+                st.pyplot(fig4)
+            with col5:
+                st.pyplot(fig5)
+            with col6:
+                st.pyplot(fig6)
+            
             st.write("---")
             st.subheader("Top 10 Organizaciones")
-            st.write(df_filtrado.head(10))
+            st.write(ingresos_grafica.head(30))
 
     elif selected == "Organizacion":
         

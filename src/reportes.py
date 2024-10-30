@@ -292,7 +292,8 @@ def reporte1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pd
     elements.append(Spacer(1, 6))  # Reducido para ahorrar espacio
     
     # Títulos de las tablas
-    encabezado_tabla = [['CODIGO', 'CONCEPTO', 'VALOR']]
+    encabezado_tabla1 = [[' ', '                                                    PATRIMONIO', '  ']]
+    encabezado_tabla2 = [['CODIGO ', 'CONCEPTO', 'VALOR']]
     
     # Tabla de resumen financiero
     data_resumen = [
@@ -300,7 +301,7 @@ def reporte1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pd
         ["2", "Deudas a 31 de diciembre", f'{deudas:,.0f}'],
         ["3", "Total Patrimonio Líquido a 31 de diciembre", f'{total_patrimonio_liquido:,.0f}'],
     ]
-    tabla_resumen = Table(encabezado_tabla + data_resumen, colWidths=[0.5*inch, 6*inch, 1*inch])
+    tabla_resumen = Table(encabezado_tabla1 + data_resumen, colWidths=[0.5*inch, 6*inch, 1*inch])
     tabla_resumen.setStyle(TableStyle([
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
@@ -333,7 +334,7 @@ def reporte1(dataset, ingresos_df, egresos_df, total_ingresos, total_egresos, pd
     egresos_data.append([Paragraph("200", total_style), Paragraph("Total Egresos Anuales", total_style), f'{total_egresos:,.2f}'])
     
     # Crear tabla de ingresos y egresos
-    tabla_ingresos_egresos = Table(encabezado_tabla + ingresos_data + egresos_data, colWidths=[0.5*inch, 6*inch, 1*inch])
+    tabla_ingresos_egresos = Table(encabezado_tabla2 + ingresos_data + egresos_data, colWidths=[0.5*inch, 6*inch, 1*inch])
     tabla_ingresos_egresos.setStyle(TableStyle([
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
@@ -873,11 +874,13 @@ def crear_pie_de_pagina3():
            Firma del Representante Legal                             Firma del Auditor Interno T.P  <br/> 
            <br/>
          <b>_____________________________________________________________________________________________</b <br/>  
-           <b>NOTA: </b Para reportar los gastos en las casillas corespondientes, tener en cuenta el Articulo 11 de la Resolucion 3134 del 14 de <br/>
-                    diciembre de 2018 "De conformidad con el principio de la transparencia, al tenor de lo previsto en el articulo 19 de la Ley 1475 de 2011,
-                    <b>los partidos o movimientos politicos con personeria juridica declarados en oposicion, al momento de hacer la rendicion 
+           <b>NOTA: </b <br/> 
+           Para reportar los gastos en las casillas corespondientes, tener en cuenta el Articulo 11 de la Resolucion 3134 del 14 de 
+                    diciembre de 2018 <b> "De conformidad con el principio de la transparencia, al tenor de lo previsto en el articulo 19 de la Ley 1475 de 2011,
+                    los partidos o movimientos politicos con personeria juridica declarados en oposicion, al momento de hacer la rendicion 
                     publica de cuentas, deberan desagregar del total de los ingresos y gastos, el monto correspondiente al componente de la 
-                    financiacion adicional, por lo que deberan discriminar el destino dado a estos recursos..."</b y conforme con los principios.<br/>""",
+                    financiacion adicional, por lo que deberan discriminar el destino dado a estos recursos..."</b <br/>  
+                    y conforme con los principios. <br/>""",
         styles["Justify"]
     )
 
